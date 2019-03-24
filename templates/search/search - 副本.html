@@ -1,0 +1,101 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件管理</title>
+    <link rel="stylesheet" href="{% static 'css/uikit.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/uikit.js' %}"></script>
+    <script src="{% static 'js/uikit-icons.js' %}"></script>
+    <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+    <style>
+        span.highlighted {
+            color: red;
+        }
+        li {
+            list-style: none
+        }
+        .dw {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="uk-container uk-container-small"  id="top">
+{#    <div class="uk-container uk-container-expand">#}
+        <br>
+        <nav class="uk-navbar-container" uk-navbar>
+            <div class="uk-navbar-center">
+                <ul class="uk-navbar-nav">
+                    <li class="uk-active">
+                        <br><a href="/index/" target="_self"><h1 style="font-family:华文行楷">文件管理系统</h1></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div uk-grid class="uk-child-width-expand@s">
+            <div>
+                <form class="uk-form-stacked" enctype="multipart/form-data" action="/upload_file/" method="post">
+                    {% csrf_token %}
+                    <div align="center" class="uk-margin" uk-margin >
+                        <div uk-form-custom="target: true" class="uk-form-custom uk-first-column">
+                            <input type="file" name="myfile">
+                            <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file ..." disabled>
+                        </div>
+                        <button class="uk-button uk-button-default">上传文件</button>
+                    </div>
+                </form>
+            </div>
+            <div align="center">
+                <form class="uk-search uk-search-default" role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+                    {% csrf_token %}
+                    <div align="center" class="uk-margin" uk-margin >
+                        <span class="uk-search-icon-flip" uk-search-icon></span>
+                        <input class="uk-search-input" type="search" name="q" placeholder="Search ...">
+                    </div>
+                </form>
+            </div>
+        </div>
+{% load highlight %}
+
+{#{% block main %}#}
+    {% if query %}
+        {% for result in object_list %}
+            <dl>
+                <dt>
+                    <h3>
+                        <a href="/preview?file_name={{ result.object.file_name }}" target="_blank" strategy="_0">{% highlight result.object.file_name with query %}</a>
+                    </h3>
+                </dt>
+                <dd>
+                    <p>{% highlight result.object.file_text with query %}</p>
+                </dd>
+                <dd>
+                    <span class="uk-badge uk-label-default">{{ result.object.file_type }}</span>&nbsp;&nbsp;
+                    {{ result.object.upload_time|date:"Y-m-d H:i" }} &nbsp;&nbsp;&nbsp;
+                    <a href="" target="_blank" strategy="_0" uk-icon="trash"></a>&nbsp;&nbsp;
+                    <a href={% static result.object.local_url %} download={{ result.object.file_name }} strategy="_0" uk-icon="download"></a>
+                </dd>
+            </dl>
+            <hr class="uk-divider-icon">
+        {% empty %}
+            <div class="no-post">没有搜索到你想要的结果！</div>
+        {% endfor %}
+    {% else %}
+        请输入搜索关键词，例如 django
+    {% endif %}
+{#{% endblock main %}#}
+<p id="bottom">
+    <div class="dw" uk-margin>
+        <ul>
+            <li><a id="" class="uk-button-small uk-button-primary" href="#top" uk-scroll="" uk-icon="chevron-up" uk-tooltip="title: 到顶部; pos: top-right"></a></li>
+            <br>
+            <li><a class="uk-button-small uk-button-primary" href="#bottom" uk-scroll uk-icon="chevron-down" uk-tooltip="title: 到底部; pos: top-right"></a></li>
+        </ul>
+    </div>
+

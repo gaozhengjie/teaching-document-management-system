@@ -1,0 +1,192 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件管理</title>
+    <link rel="stylesheet" href="{% static 'css/uikit.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/uikit.js' %}"></script>
+    <script src="{% static 'js/uikit-icons.js' %}"></script>
+    <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+    <script src="{% static 'js/check.js' %}"></script>
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+    <style>
+        span.highlighted {
+            color: red;
+        }
+{#        li {#}
+{#            list-style: none#}
+{#        }#}
+        .dw {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+{#            z-index:999;#}
+{#            width:50px;#}
+{#            height:50px;#}
+{#            border:1px red solid;#}
+        }
+    </style>
+</head>
+
+{#<div class="uk-position-center-left">#}
+
+{#    <div class="uk-container uk-container-small">#}
+<div class="uk-container uk-container-expand uk-width-4-5" id="top">
+    <br>
+    <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-center">
+            <ul class="uk-navbar-nav">
+                <li class="uk-active">
+                    <br><a href="/index/" target="_self"><h1 style="font-family:华文行楷">教学文件管理系统</h1></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div uk-grid>
+        <div class="left uk-width-1-5">
+{#                <form class="uk-form-stacked" action="/index" method="post">#}
+{#                            {% csrf_token %}#}
+            <div class="uk-margin-top">
+            <div align="center" class="uk-card uk-card-default uk-card-body uk-width-1-1">
+
+                <div class="com_plate_tit">
+                    <span class="plate_title">文件类型检索</span>
+                    <hr>
+                </div>
+                <ul class="uk-nav">
+                    <li class="uk-parent">
+                        <a href="/filetype?file_type=教学任务" >教学任务</a>
+                        <a href="/filetype?file_type=教辅任务" >教辅任务</a>
+                        <a href="/filetype?file_type=教改任务" >教改任务</a>
+                        <a href="/filetype?file_type=教学指导" >教学指导</a>
+                        <a href="/filetype?file_type=科研任务" >科研任务</a>
+                        <a href="/filetype?file_type=年终考核" >年终考核</a>
+                        <a href="/filetype?file_type=特殊任务" >特殊任务</a>
+                        <a href="/filetype?file_type=其他" >其他</a>
+                    </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="uk-margin-top">
+                <div class="uk-card uk-card-default uk-card-body uk-width-1-1">
+                    <div align="center"  class="com_plate_tit">
+                        <span class="plate_title">关键词检索</span>
+                        <hr>
+                    </div>
+                    <div class="con_detail content clearfix">
+                        {% for keyword in keyword_list %}
+                            <a href="{% url 'haystack_search' %}?q={{ keyword.key_word }}" target="_blank" class="{{ keyword.color }}">{{ keyword.key_word }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="uk-margin-top">
+                <div class="uk-card uk-card-default uk-card-body uk-width-1-1">
+                    <div align="center">
+                        <span class="plate_title">推荐阅读</span>
+                    </div>
+                    <hr>
+                    <div align="left">
+                        <ul >
+                            {% for each_rec_filename in rec_filename %}
+                                <li><a href="/preview?file_name={{ each_rec_filename }}" target="_blank">{{ each_rec_filename }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right uk-width-4-5">
+
+            <div class="uk-container uk-container-expand uk-position-relative">
+            <div uk-grid class="uk-child-width-expand@s">
+                <div>
+                    <form class="uk-form-stacked" enctype="multipart/form-data" action="/upload_file/" method="post" onsubmit="return validate_form()">
+                        {% csrf_token %}
+                        <div align="center" class="uk-margin" uk-margin >
+    {#                    <div  class="uk-margin" uk-margin >#}
+                            <div uk-form-custom="target: true" class="uk-form-custom uk-first-column uk-width-1-3">
+                                <input type="file" name="myfile">
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file ..." disabled>
+                            </div>
+                            <select id="file_type" name="file_type" class="uk-select uk-width-1-3">
+                                <option value="">请选择文件类型</option>
+                                <option value="教学任务">教学任务</option>
+                                <option value="教辅任务">教辅任务</option>
+                                <option value="教改任务">教改任务</option>
+                                <option value="教学指导">教学指导</option>
+                                <option value="科研任务">科研任务</option>
+                                <option value="年终考核">年终考核</option>
+                                <option value="特殊任务">特殊任务</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <button class="uk-button uk-button-default">上传文件</button>
+                        </div>
+                    </form>
+                </div>
+                <div align="center">
+                    <form class="uk-search uk-search-default" role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+                        {% csrf_token %}
+                        <div align="center" class="uk-margin" uk-margin >
+                            <span class="uk-search-icon-flip" uk-search-icon></span>
+                            <input class="uk-search-input" type="search" name="q" placeholder="Search ...">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
+                <thead>
+                <tr>
+                    <th>文件名称</th>
+                    <th>文件类型</th>
+                    <th>上传时间</th>
+                    <th>文件大小</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+    {#            <main>#}
+    {#                {% block main %}#}
+    {#                {% endblock main %}#}
+    {#            </main>#}
+                {% for file in file_list %}
+                    <tr>
+                        <td class="uk-table-link"><a class="uk-link-reset" href="/preview?file_name={{ file.file_name }}" target="_blank">{{ file.file_name }}</a></td>
+                        <td>{{ file.file_type }}</td>
+                        <td>{{ file.upload_time|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ file.file_size }}</td>
+                        <td class="uk-table-link"><a href="" target="" uk-icon="trash"></td>
+                        <td class="uk-table-link">
+                            <a strategy="_0" href="{% static file.local_url %}" download={{ file.file_name }} uk-icon="download"></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            <hr class="uk-divider-icon" id="bottom">
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="dw" uk-margin>
+    <ul>
+        <li style="list-style: none"><a id="" class="uk-button-small uk-button-primary" href="#top" uk-scroll="" uk-icon="chevron-up" uk-tooltip="title: 到顶部; pos: top-right"></a></li>
+        <br>
+        <li style="list-style: none"><a class="uk-button-small uk-button-primary" href="#bottom" uk-scroll uk-icon="chevron-down" uk-tooltip="title: 到底部; pos: top-right"></a></li>
+    </ul>
+</div>
+</body>

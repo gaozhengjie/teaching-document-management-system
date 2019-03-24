@@ -1,0 +1,85 @@
+{% load staticfiles %}
+{#<!DOCTYPE html>#}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文档预览</title>
+    <link rel="stylesheet" href="{% static 'css/uikit.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/uikit.js' %}"></script>
+    <script src="{% static 'js/uikit-icons.js' %}"></script>
+    <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+    <style>
+        span.highlighted {
+            color: red;
+        }
+{#        li {#}
+{#            list-style: none#}
+{#        }#}
+        .dw {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+{#            z-index:999;#}
+{#            width:50px;#}
+{#            height:50px;#}
+{#            border:1px red solid;#}
+        }
+    </style>
+</head>
+<body>
+
+<div class="uk-container uk-container-expand uk-width-4-5" id="top">
+    <br>
+    <div uk-grid>
+        <div class="left uk-width-2-3">
+            <div class="uk-container uk-container-expand uk-position-relative">
+                <div uk-grid class="uk-child-width-expand@s">
+                    <div align="center">
+                    {#    <h2>文件名</h2>#}
+                        <iframe align="center"
+                                src="{% static html_path %}"
+                                width='100%' height='95%' allowfullscreen webkitallowfullscreen></iframe>
+{#                                width='60%' height='100%' allowfullscreen webkitallowfullscreen></iframe>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="right uk-width-1-3">
+            <div class="uk-margin-top">
+                <div align="left" class="uk-card uk-card-default uk-card-body uk-width-1-1">
+                    <span class="plate_title">相关阅读</span>
+                    <hr>
+
+                    <ul>
+                        <!-- 循环tag开始 -->
+                        {% for each_file_name in relevant_filename %}
+                            <li><a href="/preview?file_name={{ each_file_name }}" target="_blank">{{ each_file_name }}</a></li>
+                        {% endfor %}
+                        <!-- 循环tag结束-->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>
+
+<p id="bottom">
+    <div class="dw" uk-margin>
+        <ul class="uk-list">
+            <li><a id="" class="uk-button-small uk-button-primary" href="#top" uk-scroll="" uk-icon="chevron-up" uk-tooltip="title: 到顶部; pos: top-right"></a></li>
+            <br>
+            <li><a class="uk-button-small uk-button-primary" href="#bottom" uk-scroll uk-icon="chevron-down" uk-tooltip="title: 到底部; pos: top-right"></a></li>
+        </ul>
+    </div>
+
+
+</body>
+</html>
